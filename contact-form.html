@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>联系我们 - 本地表单</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: "PingFang SC", "Helvetica Neue", "Microsoft YaHei", sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 40px auto;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 25px;
+            color: #2c3e50;
+        }
+        
+        .description {
+            margin-bottom: 25px;
+            text-align: center;
+            color: #666;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        input, textarea, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus, textarea:focus, select:focus {
+            border-color: #3498db;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+        
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            width: 100%;
+            font-size: 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-weight: 600;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+        }
+        
+        .status {
+            margin-top: 20px;
+            padding: 12px;
+            border-radius: 6px;
+            display: none;
+        }
+        
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                margin: 20px auto;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>联系我们</h1>
+        <p class="description">请填写以下表单，我们将通过您的默认邮件客户端发送反馈信息。</p>
+        
+        <form id="contactForm" onsubmit="submitForm(event)">
+            <div class="form-group">
+                <label for="name">姓名</label>
+                <input type="text" id="name" name="name" placeholder="请输入您的姓名" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="email">邮箱地址</label>
+                <input type="email" id="email" name="email" placeholder="请输入您的邮箱地址" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="subject">主题</label>
+                <select id="subject" name="subject">
+                    <option value="咨询">产品咨询</option>
+                    <option value="反馈">用户反馈</option>
+                    <option value="支持">技术支持</option>
+                    <option value="其他">其他事项</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="message">留言内容</label>
+                <textarea id="message" name="message" placeholder="请输入您的留言内容..." required></textarea>
+            </div>
+            
+            <button type="submit">提交反馈</button>
+        </form>
+        
+        <div id="statusMessage" class="status"></div>
+    </div>
+
+    <script>
+        function submitForm(event) {
+            event.preventDefault();
+            
+            // 获取表单数据
+            const name = document.getElementById('name').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const subject = document.getElementById('subject').value;
+            const message = document.getElementById('message').value.trim();
+            
+            // 表单验证
+            if (!name || !email || !message) {
+                showStatus('请填写所有必填字段', 'error');
+                return false;
+            }
+            
+            // 电子邮件格式验证
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailPattern.test(email)) {
+                showStatus('请输入有效的电子邮件地址', 'error');
+                return false;
+            }
+            
+            // 构建邮件内容
+            const formattedDate = new Date().toLocaleString('zh-CN');
+            const mailtoLink = `mailto:1049064053@qq.com?subject=${encodeURIComponent(`${subject} - 来自 ${name}`)}
+                &body=${encodeURIComponent(`提交时间：${formattedDate}\n\n姓名：${name}\n邮箱：${email}\n主题：${subject}\n\n留言内容：\n${message}\n\n此邮件通过本地表单自动生成。`)}`;
+            
+            try {
+                // 打开邮件客户端
+                window.location.href = mailtoLink;
+                
+                // 显示成功消息
+                showStatus('表单已提交，正在打开您的邮件客户端...', 'success');
+                
+                // 重置表单
+                setTimeout(() => {
+                    document.getElementById('contactForm').reset();
+                }, 2000);
+                
+            } catch (error) {
+                showStatus('提交时出错，请稍后重试或直接联系我们', 'error');
+                console.error('提交表单时出错:', error);
+            }
+        }
+        
+        function showStatus(message, type) {
+            const statusElement = document.getElementById('statusMessage');
+            statusElement.textContent = message;
+            statusElement.className = `status ${type}`;
+            statusElement.style.display = 'block';
+            
+            // 5秒后隐藏状态消息
+            setTimeout(() => {
+                statusElement.style.display = 'none';
+            }, 5000);
+        }
+    </script>
+</body>
+</html> 
